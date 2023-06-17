@@ -9,14 +9,14 @@ public abstract class Vehicle {
     protected String model;
     protected String make;
     protected double highestBid;
-    protected List<Bid> bids; // List to store bids on this vehicle
+    protected List<Bid> bids;
 
     public Vehicle(String type, String model, String make) {
         this.type = type;
         this.model = model;
         this.make = make;
         this.highestBid = 0;
-        this.bids = new ArrayList<>(); // Initialize the list of bids
+        this.bids = new ArrayList<>();
     }
 
     public String getType() {
@@ -47,7 +47,7 @@ public abstract class Vehicle {
         }
     }
 
-    // Method to get the list of bids on this vehicle
+
     public List<Bid> getBids() {
         return bids;
     }

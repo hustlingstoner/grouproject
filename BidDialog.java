@@ -55,7 +55,7 @@ public class BidDialog extends Dialog<Double> {
                     auctionHouse.placeBid(vehicle, bidAmount, user);
                     return bidAmount;
                 } catch (NumberFormatException e) {
-                    // Invalid bid amount, return null
+
                 }
             }
             return null;

@@ -19,8 +19,8 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        auctionHouse = new AuctionHouse();
         authService = new AuthenticationService();
+        auctionHouse = new AuctionHouse(authService); // Pass authService as an argument
         vehicleListView = new ListView<>();
 
         primaryStage.setTitle("Auction System");

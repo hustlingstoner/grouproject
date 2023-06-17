@@ -8,17 +8,24 @@ public class AuctionHouse {
     private int carCount;
     private int motorcycleCount;
     private int truckCount;
+    private AuthenticationService authService; // Added AuthenticationService field
 
-    public AuctionHouse() {
+    public AuctionHouse(AuthenticationService authService) { // Modified constructor to accept AuthenticationService
         vehicles = FXCollections.observableArrayList();
         carCount = 0;
         motorcycleCount = 0;
         truckCount = 0;
+        this.authService = authService; // Initialize AuthenticationService field
     }
 
     public void addVehicle(Vehicle vehicle) {
-        vehicles.add(vehicle);
-        incrementVehicleCount(vehicle);
+        // Check if the logged-in user is an admin
+        if (authService.getLoggedInUser() != null && authService.getLoggedInUser().getUserType() == AuthenticationService.UserType.ADMIN) {
+            vehicles.add(vehicle);
+            incrementVehicleCount(vehicle);
+        } else {
+            System.out.println("Only admins can add vehicles.");
+        }
     }
 
     private void incrementVehicleCount(Vehicle vehicle) {
@@ -52,13 +59,13 @@ public class AuctionHouse {
             double currentBid = vehicle.getHighestBid();
             if (bidAmount > currentBid) {
                 vehicle.setHighestBid(bidAmount);
-                Bid bid = new Bid(user, bidAmount, vehicle); // Create a new Bid object
-                vehicle.addBid(bid); // Add the bid to the vehicle
+                Bid bid = new Bid(user, bidAmount, vehicle);
+                vehicle.addBid(bid);
             } else {
-                // Handle invalid bid amount (e.g., show an error message)
+                // Error Msg Help ME!
             }
         } else {
-            // Handle vehicle not found in the auction house (e.g., show an error message)
+            // Error MSG HELP ME!
         }
     }
 
@@ -68,7 +75,7 @@ public class AuctionHouse {
         details.append("Type: ").append(vehicle.getType()).append("\n");
         details.append("Current Highest Bid: $").append(vehicle.getHighestBid()).append("\n");
 
-        // Display the list of users who have placed bids along with the bid amounts
+
         details.append("Bids:\n");
         for (Bid bid : vehicle.getBids()) {
             details.append("User: ").append(bid.getUser().getUsername())
