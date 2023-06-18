@@ -1,5 +1,5 @@
 package com.example.auction;
-
+import java.util.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -161,18 +161,32 @@ public class HelloApplication extends Application {
             showAddVehicleDialog();
         });
 
-        Button viewVehiclesButton = new Button("View Vehicles");
-        viewVehiclesButton.setOnAction(e -> {
-            showVehiclesForAuction();
+        Button createAuctionButton = new Button("Create Auction"); // New button for creating auctions
+        createAuctionButton.setOnAction(e -> {
+            showCreateAuctionDialog();
         });
 
         VBox root = new VBox(10);
         root.setPadding(new Insets(10));
-        root.getChildren().addAll(addVehicleButton, viewVehiclesButton);
+        root.getChildren().addAll(addVehicleButton, createAuctionButton); // Add the new button to the layout
 
         adminStage.setScene(new Scene(root));
         adminStage.show();
     }
+
+    // Method to show a dialog for creating an auction
+    private void showCreateAuctionDialog() {
+        // You can create a custom dialog similar to AddVehicleDialog
+        // For simplicity, I'm just using a hardcoded date for the auction end time
+        Date endTime = new Date(System.currentTimeMillis() + 3600000); // 1 hour from now
+        auctionHouse.createAuction(endTime);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Auction Created");
+        alert.setHeaderText(null);
+        alert.setContentText("The auction has been created and will end at " + endTime);
+        alert.showAndWait();
+    }
+
 
     private void showAddVehicleDialog() {
         AddVehicleDialog dialog = new AddVehicleDialog(auctionHouse, true);
@@ -188,7 +202,7 @@ public class HelloApplication extends Application {
                 alert.showAndWait();
             } else {
 
-                auctionHouse.addVehicle(newVehicle);
+                auctionHouse.addVehicleToAuction(newVehicle);
 
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Vehicle Added");
