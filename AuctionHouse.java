@@ -19,9 +19,9 @@ public class AuctionHouse {
     }
 
     // Method to create a new auction
-    public Auction createAuction(Date endTime) {
+    public Auction createAuction(String auctionName, Date endTime) {
         if (isAdmin()) {
-            Auction auction = new Auction(endTime);
+            Auction auction = new Auction(auctionName, endTime); // Pass auctionName here
             auctions.add(auction);
             return auction;
         } else {
@@ -30,8 +30,17 @@ public class AuctionHouse {
         }
     }
 
+    // Method to add a vehicle to the AuctionHouse
+    public void addVehicle(Vehicle vehicle) {
+        if (isAdmin()) {
+            vehicles.add(vehicle);
+        } else {
+            System.out.println("Only admins can add vehicles.");
+        }
+    }
+
     // Method to add a vehicle to an auction
-    public void addVehicleToAuction(Vehicle vehicle) {
+    public void addVehicleToAuction(Vehicle vehicle, Auction auction) {
         if (isAdmin()) {
             auction.addVehicle(vehicle);
         } else {

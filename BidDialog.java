@@ -15,9 +15,9 @@ public class BidDialog extends Dialog<Double> {
     private final Label lastBidLabel;
     private final ListView<String> bidListView;
 
-    public BidDialog(Vehicle vehicle, AuctionHouse auctionHouse, AuthenticationService.User user) {
+    public BidDialog(Vehicle vehicle, AuthenticationService.User user) {
         setTitle("Place Bid");
-        setHeaderText("Place your bid for " + vehicle.toString()); // Modified line
+        setHeaderText("Place your bid for " + vehicle.toString());
 
         ButtonType bidButtonType = new ButtonType("Bid", ButtonBar.ButtonData.OK_DONE);
         getDialogPane().getButtonTypes().addAll(bidButtonType, ButtonType.CANCEL);
@@ -52,10 +52,11 @@ public class BidDialog extends Dialog<Double> {
             if (dialogButton == bidButtonType) {
                 try {
                     double bidAmount = Double.parseDouble(bidAmountField.getText());
-                    auctionHouse.placeBid(vehicle, bidAmount, user);
+                    Bid bid = new Bid(user, bidAmount, vehicle);
+                    vehicle.addBid(bid); // Add the bid to the vehicle
                     return bidAmount;
                 } catch (NumberFormatException e) {
-
+                    // Handle number format exception
                 }
             }
             return null;

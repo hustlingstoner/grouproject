@@ -1,4 +1,5 @@
 package com.example.auction;
+
 public class Bid {
     private AuthenticationService.User user;
     private double amount;
@@ -22,5 +23,3 @@ public class Bid {
         return vehicle;
     }
 }
-
-
