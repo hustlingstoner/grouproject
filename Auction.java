@@ -35,6 +35,17 @@ public class Auction {
         vehicles.add(vehicle);
     }
 
+    // Method to place a bid in the auction
+    public void placeBid(AuthenticationService.User user, double amount, Vehicle vehicle) {
+        Bid bid = new Bid(user, amount, vehicle);
+        vehicle.addBid(bid);
+    }
+
+    // Method to get the list of vehicles in the auction
+    public List<Vehicle> getVehicles() {
+        return vehicles;
+    }
+
     private void endAuction() {
         // Determine the highest bid
         Bid highestBid = null;

@@ -30,6 +30,41 @@ public class HelloApplication extends Application {
         primaryStage.show();
     }
 
+    private void showUserLoginPage() {
+        Stage userLoginStage = new Stage();
+        userLoginStage.setTitle("User Login");
+
+        Label usernameLabel = new Label("Username:");
+        TextField usernameField = new TextField();
+        Label passwordLabel = new Label("Password:");
+        PasswordField passwordField = new PasswordField();
+        Button loginButton = new Button("Login");
+
+        loginButton.setOnAction(e -> {
+            String username = usernameField.getText();
+            String password = passwordField.getText();
+            boolean validUser = authService.authenticateUser(username, password); // Call authenticateUser method
+
+            if (validUser) {
+                userLoginStage.close();
+                showUserDetailsPage();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Login Failed");
+                alert.setHeaderText(null);
+                alert.setContentText("Invalid user credentials.");
+                alert.showAndWait();
+            }
+        });
+
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
+        root.getChildren().addAll(usernameLabel, usernameField, passwordLabel, passwordField, loginButton);
+
+        userLoginStage.setScene(new Scene(root));
+        userLoginStage.show();
+    }
+
     private void showUserDetailsPage() {
         Stage userDetailsStage = new Stage();
         userDetailsStage.setTitle("User Details");
@@ -42,11 +77,66 @@ public class HelloApplication extends Application {
         // Add action listeners to buttons
         viewAuctionsButton.setOnAction(e -> {
             // Logic to view auctions
+            ListView<Auction> auctionListView = new ListView<>();
+            auctionListView.getItems().addAll(auctionHouse.getAuctions());
+
+            Stage auctionListStage = new Stage();
+            auctionListStage.setTitle("Auctions");
+            VBox vbox = new VBox(auctionListView);
+            Scene scene = new Scene(vbox, 300, 200);
+            auctionListStage.setScene(scene);
+            auctionListStage.show();
         });
 
         placeBidButton.setOnAction(e -> {
             // Logic to place a bid
+            ChoiceDialog<Auction> auctionChoiceDialog = new ChoiceDialog<>();
+            auctionChoiceDialog.setTitle("Select Auction");
+            auctionChoiceDialog.setHeaderText("Select an auction to place a bid on:");
+            auctionChoiceDialog.getItems().addAll(auctionHouse.getAuctions());
+
+            Optional<Auction> selectedAuction = auctionChoiceDialog.showAndWait();
+
+            if (selectedAuction.isPresent()) {
+                ChoiceDialog<Vehicle> vehicleChoiceDialog = new ChoiceDialog<>();
+                vehicleChoiceDialog.setTitle("Select Vehicle");
+                vehicleChoiceDialog.setHeaderText("Select a vehicle to place a bid on:");
+                // Assuming Auction class has a getVehicles() method
+                vehicleChoiceDialog.getItems().addAll(selectedAuction.get().getVehicles());
+
+                Optional<Vehicle> selectedVehicle = vehicleChoiceDialog.showAndWait();
+
+                if (selectedVehicle.isPresent()) {
+                    TextInputDialog bidAmountDialog = new TextInputDialog();
+                    bidAmountDialog.setTitle("Place Bid");
+                    bidAmountDialog.setHeaderText("Enter Bid Amount");
+                    bidAmountDialog.setContentText("Please enter your bid amount:");
+
+                    Optional<String> bidAmountResult = bidAmountDialog.showAndWait();
+
+                    if (bidAmountResult.isPresent()) {
+                        try {
+                            double bidAmount = Double.parseDouble(bidAmountResult.get());
+                            AuthenticationService.User user = authService.getLoggedInUser();
+                            // Call the correct method with the correct parameters
+                            auctionHouse.placeBidOnVehicleInAuction(user, bidAmount, selectedVehicle.get(), selectedAuction.get());
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Bid Placed");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Your bid has been placed.");
+                            alert.showAndWait();
+                        } catch (NumberFormatException ex) {
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText(null);
+                            alert.setContentText("Please enter a valid number.");
+                            alert.showAndWait();
+                        }
+                    }
+                }
+            }
         });
+
 
         // Create layout and add elements
         VBox root = new VBox(10);
@@ -57,9 +147,11 @@ public class HelloApplication extends Application {
         userDetailsStage.setScene(new Scene(root));
         userDetailsStage.show();
     }
+
+
     private VBox createAuthPage() {
         Button userButton = new Button("User Login");
-        userButton.setOnAction(e -> showUserDetailsPage());
+        userButton.setOnAction(e -> showUserLoginPage()); // Change this line
 
         Button adminButton = new Button("Admin Login");
         adminButton.setOnAction(e -> showAdminLoginPage());
@@ -71,6 +163,7 @@ public class HelloApplication extends Application {
 
         return authBox;
     }
+
 
     private void showAdminLoginPage() {
         Stage adminLoginStage = new Stage();

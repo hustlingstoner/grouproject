@@ -21,7 +21,7 @@ public class AuctionHouse {
     // Method to create a new auction
     public Auction createAuction(String auctionName, Date endTime) {
         if (isAdmin()) {
-            Auction auction = new Auction(auctionName, endTime); // Pass auctionName here
+            Auction auction = new Auction(auctionName, endTime);
             auctions.add(auction);
             return auction;
         } else {
@@ -45,6 +45,15 @@ public class AuctionHouse {
             auction.addVehicle(vehicle);
         } else {
             System.out.println("Only admins can add vehicles to auctions.");
+        }
+    }
+
+    // Method to place a bid on a vehicle in an auction
+    public void placeBidOnVehicleInAuction(AuthenticationService.User user, double bidAmount, Vehicle vehicle, Auction auction) {
+        if (user != null) {
+            auction.placeBid(user, bidAmount, vehicle);
+        } else {
+            System.out.println("You must be logged in to place a bid.");
         }
     }
 
