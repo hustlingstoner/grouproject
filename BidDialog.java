@@ -1,4 +1,4 @@
-package com.example.auction;
+package com.example.demo;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -54,6 +54,15 @@ public class BidDialog extends Dialog<Double> {
                     double bidAmount = Double.parseDouble(bidAmountField.getText());
                     Bid bid = new Bid(user, bidAmount, vehicle);
                     vehicle.addBid(bid); // Add the bid to the vehicle
+
+                    // Update the bidItems
+                    bidItems.clear();
+                    bidItems.addAll(
+                            vehicle.getBids().stream()
+                                    .map(b -> b.getUser().getUsername() + " bid $" + b.getAmount())
+                                    .collect(Collectors.toList())
+                    );
+
                     return bidAmount;
                 } catch (NumberFormatException e) {
                     // Handle number format exception
@@ -61,6 +70,8 @@ public class BidDialog extends Dialog<Double> {
             }
             return null;
         });
+
+
     }
 
     public double getBidAmount() {

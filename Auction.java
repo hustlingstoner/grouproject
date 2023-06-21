@@ -1,67 +1,53 @@
-package com.example.auction;
+package com.example.demo;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class Auction {
     private String auctionName;
-    private List<Vehicle> vehicles;
     private Date endTime;
-    private Timer timer;
+    private List<Vehicle> vehicles;
 
     public Auction(String auctionName, Date endTime) {
         this.auctionName = auctionName;
-        this.vehicles = new ArrayList<>();
         this.endTime = endTime;
-        this.timer = new Timer();
-
-        // Schedule the end of the auction
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                endAuction();
-            }
-        }, endTime);
+        this.vehicles = new ArrayList<>();
     }
 
     public String getAuctionName() {
         return auctionName;
     }
 
-    public void addVehicle(Vehicle vehicle) {
-        vehicles.add(vehicle);
+    public Date getEndTime() {
+        return endTime;
     }
 
-    // Method to place a bid in the auction
-    public void placeBid(AuthenticationService.User user, double amount, Vehicle vehicle) {
-        Bid bid = new Bid(user, amount, vehicle);
-        vehicle.addBid(bid);
-    }
-
-    // Method to get the list of vehicles in the auction
     public List<Vehicle> getVehicles() {
         return vehicles;
     }
 
-    private void endAuction() {
-        // Determine the highest bid
-        Bid highestBid = null;
-        for (Vehicle vehicle : vehicles) {
-            for (Bid bid : vehicle.getBids()) {
-                if (highestBid == null || bid.getAmount() > highestBid.getAmount()) {
-                    highestBid = bid;
-                }
-            }
-        }
+    public void addVehicle(Vehicle vehicle) {
+        vehicles.add(vehicle);
+    }
 
-        // Notify the winner
-        if (highestBid != null) {
-            System.out.println("The auction '" + auctionName + "' has ended. The highest bid was " + highestBid.getAmount() + " by " + highestBid.getUser().getUsername());
+    @Override
+    public String toString() {
+        return auctionName;
+    }
+
+    public void placeBid(AuthenticationService.User user, double bidAmount, Vehicle vehicle) {
+        // Check if the bid amount is higher than the current highest bid
+        if (bidAmount > vehicle.getHighestBid()) {
+            // Create a new Bid object
+            Bid bid = new Bid(user, bidAmount, vehicle);
+
+            // Add the bid to the vehicle
+            vehicle.addBid(bid);
+
+            // Optionally, you can add additional logic here, such as notifying other bidders
         } else {
-            System.out.println("The auction '" + auctionName + "' has ended with no bids.");
+            System.out.println("Your bid must be higher than the current highest bid.");
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.auction;
+package com.example.demo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ public class AuthenticationService {
         // Add some default users for testing
         users.add(new User("admin", "admin123", UserType.ADMIN));
         users.add(new User("user", "user123", UserType.USER));
+        users.add(new User("user2", "user234", UserType.USER));
     }
 
     public boolean authenticateAdmin(String username, String password) {

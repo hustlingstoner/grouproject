@@ -1,4 +1,4 @@
-package com.example.auction;
+package com.example.demo;
 
 public class Bid {
     private AuthenticationService.User user;
@@ -16,10 +16,16 @@ public class Bid {
     }
 
     public double getAmount() {
+
         return amount;
     }
 
     public Vehicle getVehicle() {
         return vehicle;
     }
+
+    public String getBidder() {
+        return user.getUsername();
+    }
 }
+

@@ -1,4 +1,4 @@
-package com.example.auction;
+package com.example.demo;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public class HelloApplication extends Application {
@@ -23,7 +24,7 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage primaryStage) {
         authService = new AuthenticationService();
-        auctionHouse = new AuctionHouse(authService);
+        auctionHouse = new AuctionHouse();
         VBox authBox = createAuthPage();
         primaryStage.setTitle("Auction System");
         primaryStage.setScene(new Scene(authBox, 400, 400));
@@ -72,76 +73,14 @@ public class HelloApplication extends Application {
         // Create UI elements
         Label welcomeLabel = new Label("Welcome, User!");
         Button viewAuctionsButton = new Button("View Auctions");
-        Button placeBidButton = new Button("Place a Bid");
 
         // Add action listeners to buttons
-        viewAuctionsButton.setOnAction(e -> {
-            // Logic to view auctions
-            ListView<Auction> auctionListView = new ListView<>();
-            auctionListView.getItems().addAll(auctionHouse.getAuctions());
-
-            Stage auctionListStage = new Stage();
-            auctionListStage.setTitle("Auctions");
-            VBox vbox = new VBox(auctionListView);
-            Scene scene = new Scene(vbox, 300, 200);
-            auctionListStage.setScene(scene);
-            auctionListStage.show();
-        });
-
-        placeBidButton.setOnAction(e -> {
-            // Logic to place a bid
-            ChoiceDialog<Auction> auctionChoiceDialog = new ChoiceDialog<>();
-            auctionChoiceDialog.setTitle("Select Auction");
-            auctionChoiceDialog.setHeaderText("Select an auction to place a bid on:");
-            auctionChoiceDialog.getItems().addAll(auctionHouse.getAuctions());
-
-            Optional<Auction> selectedAuction = auctionChoiceDialog.showAndWait();
-
-            if (selectedAuction.isPresent()) {
-                ChoiceDialog<Vehicle> vehicleChoiceDialog = new ChoiceDialog<>();
-                vehicleChoiceDialog.setTitle("Select Vehicle");
-                vehicleChoiceDialog.setHeaderText("Select a vehicle to place a bid on:");
-                // Assuming Auction class has a getVehicles() method
-                vehicleChoiceDialog.getItems().addAll(selectedAuction.get().getVehicles());
-
-                Optional<Vehicle> selectedVehicle = vehicleChoiceDialog.showAndWait();
-
-                if (selectedVehicle.isPresent()) {
-                    TextInputDialog bidAmountDialog = new TextInputDialog();
-                    bidAmountDialog.setTitle("Place Bid");
-                    bidAmountDialog.setHeaderText("Enter Bid Amount");
-                    bidAmountDialog.setContentText("Please enter your bid amount:");
-
-                    Optional<String> bidAmountResult = bidAmountDialog.showAndWait();
-
-                    if (bidAmountResult.isPresent()) {
-                        try {
-                            double bidAmount = Double.parseDouble(bidAmountResult.get());
-                            AuthenticationService.User user = authService.getLoggedInUser();
-                            // Call the correct method with the correct parameters
-                            auctionHouse.placeBidOnVehicleInAuction(user, bidAmount, selectedVehicle.get(), selectedAuction.get());
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setTitle("Bid Placed");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Your bid has been placed.");
-                            alert.showAndWait();
-                        } catch (NumberFormatException ex) {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Error");
-                            alert.setHeaderText(null);
-                            alert.setContentText("Please enter a valid number.");
-                            alert.showAndWait();
-                        }
-                    }
-                }
-            }
-        });
-
+        viewAuctionsButton.setOnAction(e -> showAuctionListPage());
 
         // Create layout and add elements
         VBox root = new VBox(10);
         root.setPadding(new Insets(10));
-        root.getChildren().addAll(welcomeLabel, viewAuctionsButton, placeBidButton);
+        root.getChildren().addAll(welcomeLabel, viewAuctionsButton);
 
         // Set the scene
         userDetailsStage.setScene(new Scene(root));
@@ -258,7 +197,6 @@ public class HelloApplication extends Application {
     }
 
 
-
     private void showAddVehicleToAuctionDialog() {
         ChoiceDialog<Auction> auctionChoiceDialog = new ChoiceDialog<>();
         auctionChoiceDialog.setTitle("Select Auction");
@@ -348,8 +286,130 @@ public class HelloApplication extends Application {
             });
         }
     }
+    private void showVehicleListPage(Auction selectedAuction) {
+        Stage vehicleListStage = new Stage();
+        vehicleListStage.setTitle("Vehicles in " + selectedAuction.getAuctionName());
 
+        ListView<Vehicle> vehicleListView = new ListView<>();
+        vehicleListView.getItems().addAll(selectedAuction.getVehicles());
+
+        Button viewVehicleDetailsButton = new Button("View Vehicle Details");
+        viewVehicleDetailsButton.setOnAction(e -> {
+            Vehicle selectedVehicle = vehicleListView.getSelectionModel().getSelectedItem();
+            if (selectedVehicle != null) {
+                showVehicleDetailsPage(selectedVehicle, selectedAuction);
+            }
+        });
+
+        VBox vbox = new VBox(vehicleListView, viewVehicleDetailsButton);
+        vbox.setSpacing(10);
+        vbox.setPadding(new Insets(10));
+
+        vehicleListStage.setScene(new Scene(vbox, 300, 200));
+        vehicleListStage.show();
+    }
+
+
+    private void showAuctionListPage() {
+        Stage auctionListStage = new Stage();
+        auctionListStage.setTitle("Auctions");
+
+        ListView<Auction> auctionListView = new ListView<>();
+        auctionListView.getItems().addAll(auctionHouse.getAuctions());
+
+        Button viewVehiclesButton = new Button("View Vehicles");
+        viewVehiclesButton.setOnAction(e -> {
+            Auction selectedAuction = auctionListView.getSelectionModel().getSelectedItem();
+            if (selectedAuction != null) {
+                showVehicleListPage(selectedAuction);
+            }
+        });
+
+        VBox vbox = new VBox(auctionListView, viewVehiclesButton);
+        vbox.setSpacing(10);
+        vbox.setPadding(new Insets(10));
+
+        auctionListStage.setScene(new Scene(vbox, 300, 200));
+        auctionListStage.show();
+    }
+
+    private void showVehicleDetailsPage(Vehicle vehicle, Auction selectedAuction) {
+        Stage vehicleDetailsStage = new Stage();
+        vehicleDetailsStage.setTitle("Vehicle Details");
+
+        // Create UI elements for vehicle details
+        Label vehicleNameLabel = new Label("Name: " + vehicle.getName());
+        Label vehicleTypeLabel = new Label("Type: " + vehicle.getType());
+        Label vehicleModelLabel = new Label("Model: " + vehicle.getModel());
+        Label vehicleMakeLabel = new Label("Make: " + vehicle.getMake());
+        Label highestBidLabel = new Label("Highest Bid: $" + vehicle.getHighestBid());
+
+        ListView<String> bidsListView = new ListView<>();
+
+        // Populate bids list view
+        List<Bid> bids = vehicle.getBids();
+        for (Bid bid : bids) {
+            String bidInfo = "Bidder: " + bid.getUser().getUsername() + ", Amount: $" + bid.getAmount();
+            bidsListView.getItems().add(bidInfo);
+        }
+
+        // Place Bid Button
+        Button placeBidButton = new Button("Place a Bid");
+        placeBidButton.setOnAction(e -> {
+            TextInputDialog bidAmountDialog = new TextInputDialog();
+            bidAmountDialog.setTitle("Place Bid");
+            bidAmountDialog.setHeaderText("Enter Bid Amount");
+            bidAmountDialog.setContentText("Please enter your bid amount:");
+
+            Optional<String> bidAmountResult = bidAmountDialog.showAndWait();
+
+            if (bidAmountResult.isPresent()) {
+                try {
+                    double bidAmount = Double.parseDouble(bidAmountResult.get());
+                    if (bidAmount > vehicle.getHighestBid()) {
+                        AuthenticationService.User user = authService.getLoggedInUser(); // Assuming authService is available
+                        auctionHouse.placeBidOnVehicleInAuction(user, bidAmount, vehicle, selectedAuction); // Assuming auctionHouse is available
+
+                        // Refresh the bids list view
+                        bidsListView.getItems().clear();
+                        for (Bid bid : vehicle.getBids()) {
+                            String bidInfo = "Bidder: " + bid.getUser().getUsername() + ", Amount: $" + bid.getAmount();
+                            bidsListView.getItems().add(bidInfo);
+                        }
+
+                        // Update the highest bid label
+                        highestBidLabel.setText("Highest Bid: $" + vehicle.getHighestBid());
+
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Bid Placed");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Your bid has been placed.");
+                        alert.showAndWait();
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Error");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Your bid must be higher than the current highest bid.");
+                        alert.showAndWait();
+                    }
+                } catch (NumberFormatException ex) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Please enter a valid number.");
+                    alert.showAndWait();
+                }
+            }
+        });
+
+        // Create layout and add elements
+        VBox root = new VBox(10);
+        root.setPadding(new Insets(10));
+        root.getChildren().addAll(vehicleNameLabel, vehicleTypeLabel, vehicleModelLabel, vehicleMakeLabel, highestBidLabel, bidsListView, placeBidButton);
+
+        // Set the scene
+        Scene scene = new Scene(root, 400, 400);
+        vehicleDetailsStage.setScene(scene);
+        vehicleDetailsStage.show();
+    }
 }
-
-
-

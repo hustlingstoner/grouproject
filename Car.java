@@ -1,4 +1,4 @@
-package com.example.auction;
+package com.example.demo;
 
 import java.util.List;
 

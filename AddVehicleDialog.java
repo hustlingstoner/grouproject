@@ -1,4 +1,4 @@
-package com.example.auction;
+package com.example.demo;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -13,10 +13,8 @@ public class AddVehicleDialog extends Dialog<Vehicle> {
     private TextField vehicleYearField;
     private TextField vehiclePriceField;
     private boolean isAdminLoggedIn;
-    private AuctionHouse auctionHouse;
 
     public AddVehicleDialog(AuctionHouse auctionHouse, boolean isAdminLoggedIn) {
-        this.auctionHouse = auctionHouse;
         this.isAdminLoggedIn = isAdminLoggedIn;
 
         setTitle("Add Vehicle");
@@ -91,5 +89,9 @@ public class AddVehicleDialog extends Dialog<Vehicle> {
             return result.get();
         }
         return null;
+    }
+
+    public boolean isAdminLoggedIn() {
+        return isAdminLoggedIn;
     }
 }
